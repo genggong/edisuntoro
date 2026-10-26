@@ -1,94 +1,26 @@
-:root{
-  --green:#14532d; --green2:#2f6d3f; --amber:#b45309; --bg:#f1f5f1; --card:#fff;
-  --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --red:#dc2626; --blue:#2563eb;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);overscroll-behavior-y:contain;padding-bottom:80px}
-img{max-width:100%}
-.topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--green),#1f6d3c);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.brand strong{font-size:17px;display:block}
-.chip{font-size:11px;opacity:.9;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:999px;display:inline-block;margin-top:3px}
-.logout{color:#fff;text-decoration:none;font-size:13px;background:rgba(255,255,255,.15);padding:8px 12px;border-radius:10px}
-.tabs{position:sticky;top:59px;z-index:19;display:flex;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
-.tab{flex:1;text-align:center;padding:12px 4px;font-size:13px;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
-.tab.on{color:var(--green);border-color:var(--green);font-weight:600}
-.content{max-width:820px;margin:0 auto;padding:14px 14px 40px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.card h2{font-size:15px;margin:0 0 10px}
-.card h3{font-size:13px;margin:14px 0 6px;color:var(--green2)}
-.flash{padding:11px 14px;border-radius:10px;margin:10px 0;font-size:14px}
-.flash.ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
-.flash.err{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-/* stats */
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 10px;text-align:center}
-.stat .v{display:block;font-size:18px;font-weight:800;color:var(--green)}
-.stat.green .v{color:#16a34a}.stat.amber .v{color:var(--amber)}
-.stat .l{font-size:11px;color:var(--muted)}
-/* rows */
-.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.row:last-child{border-bottom:none}
-.muted{color:var(--muted)}
-.empty{color:var(--muted);font-size:13px;margin:8px 0}
-.hint{font-size:12px;color:var(--muted)}
-/* toolbar / search */
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.search{flex:1;display:flex;gap:6px;min-width:180px}
-.search input{flex:1;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:15px}
-/* buttons */
-.btn{display:inline-block;background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;min-height:44px;cursor:pointer}
-.btn.small{padding:9px 12px;min-height:36px;font-size:13px}
-.btn.ghost{background:var(--card);color:var(--green);border:1px solid var(--green)}
-.btn.danger{background:#fff0f0;color:var(--red);border:1px solid #fecaca}
-.fab{position:fixed;right:18px;bottom:20px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:30;padding:14px 20px}
-/* records */
-.rec{border-left:4px solid var(--green)}
-.rec summary{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px;cursor:pointer}
-.rec summary::-webkit-details-marker{display:none}
-.rec-id{background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700}
-.rec-name{font-weight:700;flex:1;min-width:120px}
-.rec-luas{color:var(--green);font-weight:700}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.grid2 span small{display:block;color:var(--muted);font-size:11px}
+/* Pelengkap Bootstrap untuk komponen khusus Buku C */
+body{background:#f1f5f1;padding-bottom:80px}
+.nav-tabs .nav-link{color:#5a6a5a;border:none;border-bottom:3px solid transparent;font-weight:600;padding:.7rem 1rem}
+.nav-tabs .nav-link.active{color:#14532d;border-bottom-color:#14532d;background:transparent}
+/* Kartu catatan Buku C (details expandable) */
+details.rec{border-left:4px solid #14532d}
+details.rec summary{list-style:none;cursor:pointer}
+details.rec summary::-webkit-details-marker{display:none}
+.rec-id{background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.rec-luas{color:#14532d;font-weight:700}
+.rec-name{font-weight:700;flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.grid2 span small{display:block;color:#6b7280;font-size:11px}
 .grid2 span b{font-size:13px;font-weight:600}
-.actions{display:flex;gap:8px;margin-top:14px}
-/* form */
-.form .field{margin-bottom:12px}
-.form label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff}
-.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid var(--green2)}
-.form textarea{resize:vertical}
-.form-actions{display:flex;gap:10px;margin-top:16px}
-/* table desktop */
-.wide-holder{overflow-x:auto}
-table.wide{display:none;width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;font-size:13px}
-table.wide th,table.wide td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}
-table.wide th{background:#f8faf8;color:var(--green);font-weight:700}
-.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
-/* login */
-.login-wrap{min-height:85vh;display:flex;align-items:center;justify-content:center;padding:20px}.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-.login-card h1{font-size:20px;margin:0 0 4px;color:var(--green)}
-.login-card .sub{margin:0 0 18px;color:var(--muted);font-size:13px}
-.login-card label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
-.login-card input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;font-size:15px}
-.login-card .btn{width:100%;margin-top:18px}
-/* peta */
-.map-wrap{width:100%;overflow:auto}
-canvas#map{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#eef7ee}
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
-.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1px solid #fff;box-shadow:0 0 0 1px #ccc}
-.dot-green{background:#dc2626}.dot-blue{background:#2563eb}
-
-@media (min-width:760px){
-  table.wide{display:table}
-  .grid2{grid-template-columns:1fr 1fr}
-  .content{max-width:1000px}
-}
-
-/* role tags */
-.legend.nh{gap:6px;align-items:center;margin:6px 0 2px}
+.rec-actions{display:flex;gap:8px;margin-top:14px}
+/* badge role */
 .role-tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:6px}
 .role-tag.a{background:#dcfce7;color:#14532d}
 .role-tag.o{background:#dbeafe;color:#1d4ed8}
 .role-tag.p{background:#fef3c7;color:#b45309}
-.actions-inline{display:inline-flex;gap:6px;align-items:center}
+/* legenda & peta */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#6b7280}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1px solid #fff;box-shadow:0 0 0 1px #ccc}
+.dot-green{background:#dc2626}.dot-blue{background:#2563eb}
+canvas#map{width:100%;height:auto;background:#eef7ee;border-radius:10px}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
