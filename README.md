@@ -34,6 +34,12 @@ docs/              # screenshot + skema peta
 3. (Opsional) jalankan `php seeder.php` untuk 12 baris data contoh.
 4. Login: **admin / admin123** — segera ganti password.
 
+### Coba langsung dari GitHub (Codespaces)
+Repo ini punya `.devcontainer` — klik **Code → Codespaces → Create codespace on main**. Setelah siap, browser otomatis terbuka ke port 8898; login `admin/admin123`. Tanpa setup apa pun, langsung bisa klik-klik.
+
+### Cek kesehatan
+`bash tests/run_checks.sh 8898` — lint PHP, cek DB, smoke test login + route.
+
 ## Keamanan
 - PDO prepared statement di semua query.
 - Password di-hash (`password_hash`).

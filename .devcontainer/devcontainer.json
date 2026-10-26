@@ -1,0 +1,22 @@
+{
+  "name": "Buku C Pertanahan dev",
+  "image": "mcr.microsoft.com/devcontainers/php:8.3",
+  "features": {
+    "ghcr.io/devcontainers/features/php": "latest"
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y php8.3-sqlite3 && (cd app && php install.php && php seeder.php) && (cd app && php -S 0.0.0.0:8898 &)",
+  "forwardPorts": [8898],
+  "portsAttributes": {
+    "8898": {
+      "label": "Buku C Pertanahan",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.exclude": { "**/db/*.db": true }
+      }
+    }
+  }
+}
