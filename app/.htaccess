@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Blokir akses langsung ke direktori sensitif
+RewriteRule ^(core|db)(/|$) - [F,L]
+
+# Front controller
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]

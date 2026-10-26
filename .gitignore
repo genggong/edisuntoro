@@ -1,0 +1,5 @@
+# database lokal
+app/db/*.db
+app/db/*.db-wal
+app/db/*.db-shm
+app/db/.DS_Store
