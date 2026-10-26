@@ -1,0 +1,41 @@
+graph TD
+    classDef startEnd fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff;
+    classDef process fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
+    classDef condition fill:#f1c40f,stroke:#f39c12,stroke-width:2px,color:#333;
+    classDef database fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff;
+    classDef error fill:#e74c3c,stroke:#c0392b,stroke-width:2px,color:#fff;
+
+    A([Mulai: Proses Buku C #amp; GIS]) --> B[Scan #amp; Input Data Tekstual Buku C<br>Nomor Kohir, Pemilik, Luas Asli, Kelas Persil]
+    B --> C[Overlay Peta Blok Desa<br>di atas Google Satellite Base Map]
+    C --> D[Digitasi Batas Lahan<br>Menggambar Polygon Koordinat Bidang]
+    D --> E[(Database SQL #amp; PostGIS<br>Linking C_ID #amp; Geom_ID)]
+
+    E --> F[Trigger Engine Validasi Spasial<br>ST_Intersects / Intersect Check via API]
+    F --> G{Apakah Geometri Lahan<br>Tumpang Tindih / Overlap?}
+    G -- Ya: Terdeteksi Klaim Ganda --> H[Sistem Tolak Entry!<br>Notifikasi Error Overlap #amp; Log Konflik]
+    H --> D
+
+    G -- Tidak: Aman 0% Overlap --> I{Cek Selisih Luas:<br>Luas Buku C vs Luas Google GIS}
+    I -- Selisih #gt; Batas Toleransi 2% --> J[Notifikasi Peringatan<br>Perlu Re-Ukur Lapangan / Cek Fisik]
+    J --> D
+    I -- Selisih Aman #lt; 2% --> K[Simpan Data Sementara<br>Status: Draft Ajuan]
+
+    K --> L{Apakah Ada Transaksi Mutasi?<br>Jual Beli / Waris / Hibah}
+    L -- Ya --> M[Modul Pemecahan / Penggabungan Lahan<br>Split/Merge Polygon di Google GIS]
+    M --> N[Generate Kohir Anak Baru #amp;<br>Update Histori Log Kohir Induk]
+    N --> O[Verifikasi #amp; Approval Digital<br>Oleh Kepala Desa / Lurah]
+    L -- Tidak: Entry Lahan Baru/Utuh --> O
+
+    O --> P{Disetujui Kades?}
+    P -- Ditolak --> K
+    P -- Disetujui / TTD Digital --> Q[Status: AKTIF #amp; DIKUNCI<br>Data Masuk Lembaran Negara Desa Digital]
+    Q --> R[(Database Master Terupdate)]
+
+    R --> S[Output #amp; Fitur Publik:<br>1. Dashboard Peta Interaktif Desa<br>2. Cetak Kutipan Letter C #amp; Peta Situasi<br>3. Eksport GeoJSON / SHP untuk BPN Bhumi]
+    S --> T([Selesai])
+
+    class A,T startEnd;
+    class B,C,D,F,K,M,N,O,Q,S process;
+    class G,I,L,P condition;
+    class E,R database;
+    class H,J error;
