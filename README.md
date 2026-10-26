@@ -50,7 +50,7 @@ docs/              # screenshot + skema peta
 - ⚠️ Belum diuji di hosting target (baru `php -S` lokal)
 
 ## Screenshot
-![Beranda](docs/shots/01_dashboard_beranda.png)
+![Beranda](docs/shots/01_beranda.png)
 ![Buku C](docs/shots/02_buku_c_list.png)
 ![Form](docs/shots/03_form_tambah.png)
 ![Rekap](docs/shots/04_rekap_statistik.png)
