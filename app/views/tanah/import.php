@@ -18,6 +18,28 @@
   </div>
 </div>
 
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="fw-bold text-success mb-3">🗺️ Import GIS / GeoJSON (Google)</h6>
+    <p class="text-muted small mb-3">
+      Untuk titik koordinat dari <strong>Google My Maps / Google Earth / QGIS</strong>. Ekspor titik sebagai
+      <em>GeoJSON/KML</em>, lalu upload di sini. Property yang dikenali: <code>Pemilik</code>, <code>No C</code>,
+      <code>Blok</code>, <code>Jenis</code>, <code>Luas m2</code>. Geometri <code>Point</code> (lon, lat).
+    </p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <a class="btn btn-outline-success" href="<?= BASE_URL ?>/tanah/import/gis-template">⬇ Contoh GeoJSON</a>
+    </div>
+    <form method="post" action="<?= BASE_URL ?>/tanah/import/gis" enctype="multipart/form-data">
+      <?= csrf_field() ?>
+      <div class="mb-2">
+        <label class="form-label">Pilih file (.geojson / .json)</label>
+        <input type="file" name="file_gis" accept=".geojson,.json" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-success">🗺️ Import Titik GIS</button>
+    </form>
+  </div>
+</div>
+
 <div class="card border-0 shadow-sm">
   <div class="card-body">
     <h6 class="fw-bold text-success mb-2">Format Kolom (urutan penting)</h6>

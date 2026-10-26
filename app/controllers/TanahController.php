@@ -246,4 +246,68 @@ class TanahController
         flash_set('ok', "Import selesai: $ok baris sukses, $skip dilewati (baris kosong/tanpa nama), $dupe gagal (ganda/masalah).");
         redirect('/tanah');
     }
+
+    /* ---------- IMPORT GIS / GeoJSON (Google) ---------- */
+
+    public function gisTemplate()
+    {
+        $sample = [
+            'type' => 'FeatureCollection',
+            'name' => 'Contoh Import Buku C',
+            'features' => [
+                ['type' => 'Feature', 'properties' => ['No C' => 'C-300', 'Pemilik' => 'Contoh GIS 1', 'Blok' => 'Blok Karanganyar', 'Jenis' => 'sawah', 'Luas m2' => 750], 'geometry' => ['type' => 'Point', 'coordinates' => [109.0240, -6.9065]]],
+                ['type' => 'Feature', 'properties' => ['No C' => 'C-301', 'Pemilik' => 'Contoh GIS 2', 'Blok' => 'Blok Krajan', 'Jenis' => 'tegal', 'Luas m2' => 400], 'geometry' => ['type' => 'Point', 'coordinates' => [109.0210, -6.9030]]],
+            ],
+        ];
+        header('Content-Type: application/geo+json; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="contoh-import-gis.geojson"');
+        echo json_encode($sample, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        exit;
+    }
+
+    public function importGeojsonDo()
+    {
+        csrf_check();
+        $up = $_FILES['file_gis'] ?? null;
+        if (!$up || ($up['error'] ?? 1) !== UPLOAD_ERR_OK) {
+            flash_set('error', 'Pilih file GeoJSON (.geojson / .json).');
+            redirect('/tanah/import');
+        }
+        $json = file_get_contents($up['tmp_name']);
+        $data = json_decode($json, true);
+        if (!is_array($data) || !isset($data['type'])) {
+            flash_set('error', 'File bukan GeoJSON valid.');
+            redirect('/tanah/import');
+        }
+
+        $features = $data['type'] === 'FeatureCollection' ? ($data['features'] ?? []) : ($data['type'] === 'Feature' ? [$data] : []);
+        if (!$features) {
+            flash_set('error', 'Tidak ada fitur (Feature/Point) di dalam GeoJSON.');
+            redirect('/tanah/import');
+        }
+
+        $st = Database::conn()->prepare("INSERT INTO tanah (nomor_c, nama, blok_dusun, jenis, luas, lat, lon) VALUES (?,?,?,?,?,?,?)");
+        $ok = 0; $skip = 0;
+        foreach ($features as $f) {
+            $geom = $f['geometry'] ?? null;
+            if (!$geom || ($geom['type'] ?? '') !== 'Point') { $skip++; continue; }
+            $c = $geom['coordinates'] ?? null;
+            if (!is_array($c) || count($c) < 2) { $skip++; continue; }
+            $lon = (float)$c[0]; $lat = (float)$c[1];
+            $p = $f['properties'] ?? [];
+            $nama = $p['Pemilik'] ?? $p['Nama'] ?? $p['nama'] ?? $p['name'] ?? '';
+            if ($nama === '') { $skip++; continue; }
+            $noC = (string)($p['No C'] ?? $p['no_c'] ?? $p['No_C'] ?? $p['nomor_c'] ?? '');
+            $blok = (string)($p['Blok'] ?? $p['blok_dusun'] ?? $p['Blok/Dusun'] ?? '');
+            $jenisIn = (string)($p['Jenis'] ?? $p['jenis'] ?? 'sawah');
+            $jenis = in_array($jenisIn, ['sawah','tegal','pekarangan','darat']) ? $jenisIn : 'sawah';
+            $luas = (float)($p['Luas m2'] ?? $p['luas'] ?? 0);
+            try {
+                $st->execute([$noC, $nama, $blok, $jenis, $luas, $lat, $lon]);
+                $ok++;
+            } catch (Exception $e) { $skip++; }
+        }
+        flash_set('ok', "Import GIS selesai: $ok titik masuk, $skip dilewati (bukan Point / tanpa nama).");
+        redirect('/tanah');
+    }
 }

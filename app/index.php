@@ -34,6 +34,8 @@ $routes = [
     ['GET', '/tanah/import', 'TanahController', 'importForm', ['admin', 'operator']],
     ['POST', '/tanah/import', 'TanahController', 'importDo', ['admin', 'operator']],
     ['GET', '/tanah/import/template', 'TanahController', 'importTemplate', ['admin', 'operator']],
+    ['GET', '/tanah/import/gis-template', 'TanahController', 'gisTemplate', ['admin', 'operator']],
+    ['POST', '/tanah/import/gis', 'TanahController', 'importGeojsonDo', ['admin', 'operator']],
     ['GET', '/pengguna', 'UserController', 'index', ['admin']],
     ['GET', '/pengguna/tambah', 'UserController', 'create', ['admin']],
     ['POST', '/pengguna/tambah', 'UserController', 'store', ['admin']],
