@@ -3,9 +3,13 @@
 Aplikasi ini dipakai perangkat desa/karang taruna untuk mendata tanah warga (Buku C).
 
 ## Akun
-| Peran | Username | Password |
-|-------|----------|----------|
-| Admin | `admin` | `admin123` (ganti setelah login pertama) |
+| Peran | Username | Password | Hak akses |
+|-------|----------|----------|-----------|
+| Admin | `admin` | `admin123` | Penuh, kelola akun |
+| Operator | `operator` | `operator123` | Tambah & edit data, ekspor |
+| Pengguna | `pengguna` | `pengguna123` | Lihat saja |
+
+> Ganti semua password default setelah penggunaan pertama.
 
 ## Alur kerja harian
 1. **Login** dengan akun admin.

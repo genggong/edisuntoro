@@ -10,6 +10,16 @@ Aplikasi **Buku C (Letter C) pertanahan** untuk Desa **Sidamulya, Kec. Wanasari,
 - **Rekap** — per jenis tanah & per blok/dusun.
 - **Peta** — skema titik koordinat wilayah (canvas) + titik bidang yang ber-lat/lon.
 - **Ekspor CSV** semua data.
+- **Role akses** — admin / operator / pengguna (lihat tabel di bawah).
+
+## Role Akses
+| Role | Beranda | Buku C | Tambah/Edit | Hapus | Rekap/Peta | Ekspor | Kelola Akun |
+|------|:------:|:------:|:-----------:|:-----:|:----------:|:------:|:-----------:|
+| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Operator** | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| **Pengguna** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+
+Akun contoh (ubah segera): `admin/admin123`, `operator/operator123`, `pengguna/pengguna123`.
 
 ## Stack
 PHP native + SQLite. Tanpa framework, tanpa composer, tanpa MySQL. Bisa jalan di shared hosting PHP 8.
@@ -62,3 +72,9 @@ Repo ini punya `.devcontainer` — klik **Code → Codespaces → Create codespa
 ![Rekap](docs/shots/04_rekap_statistik.png)
 ![Peta](docs/shots/05_peta_koordinat.png)
 ![Skema peta statis](docs/skema-peta-sidamulya.png)
+
+### Role akses
+![Admin: kelola akun](docs/shots/06_admin_pengguna.png)
+![Admin: tambah akun](docs/shots/07_admin_tambah_akun.png)
+![Operator: daftar Buku C](docs/shots/08_operator_tanah.png)
+![Pengguna: lihat saja](docs/shots/09_pengguna_tanah.png)
