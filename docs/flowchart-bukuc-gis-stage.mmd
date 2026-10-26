@@ -1,0 +1,47 @@
+graph TD
+    classDef startEnd fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff;
+    classDef stage1 fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
+    classDef stage2 fill:#f39c12,stroke:#e67e22,stroke-width:2px,color:#333;
+    classDef stage3 fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff;
+    classDef database fill:#16a085,stroke:#1abc9c,stroke-width:2px,color:#fff;
+    classDef error fill:#e74c3c,stroke:#c0392b,stroke-width:2px,color:#fff;
+
+    M([MULAI:<br>Inisiasi Digitalisasi Buku C #amp; Sinkronisasi GIS]) --> V[Validasi Data Tekstual<br>Input Data Fisik] --> S1
+
+    subgraph STAGE1["STAGE 1: DIGITALISASI &amp; INPUT BUKU C"]
+        S1[Scan Dokumen Buku C] --> S1a[Input Data:<br>No Kohir, Nama Pemilik, Luas Buku, Kelas Persil]
+    end
+
+    S1a --> DB[(Database Relasional<br>C_ID #amp; Geom_ID)] --> S2
+
+    subgraph STAGE2["STAGE 2: VALIDASI SPASIAL / GIS"]
+        S2[Overlay Google Satellite<br>#amp; Digitasi Polygon] --> S2a[Anti-Overlap Engine<br>ST_Intersects Check]
+        S2a --> S2b{Apakah Geometri<br>Tumpang Tindih?}
+        S2b -- Ya --> ER1[Tolak Entry #amp; Log Konflik]
+        ER1 --> S1
+        S2b -- Tidak --> S2c{Cek Selisih Luas<br>Buku C vs GIS}
+        S2c -- #gt;2% --> ER2[Peringatan Re-Ukur<br>Lapangan / Cek Fisik]
+        ER2 --> S1
+        S2c -- Aman #lt;2% --> S2d[Draft Ajuan]
+    end
+
+    S2d --> S3
+
+    subgraph STAGE3["STAGE 3: MUTASI &amp; VERIFIKASI BIROKRASI"]
+        S3{Mutasi?<br>Jual Beli / Waris / Hibah} -- Ya --> S3a[Split / Merge Polygon<br>di Google GIS]
+        S3a --> S3b[Generate Kohir Anak<br>#amp; Histori Log Kohir Induk]
+        S3 -- Tidak --> S3c
+        S3b --> S3c[Verifikasi #amp; Approval Digital<br>Kepala Desa / Lurah]
+        S3c --> S3d{Disetujui Kades?<br>TTD Digital}
+        S3d -- Ditolak --> S2d
+        S3d -- Disetujui --> S3e[Status: AKTIF #amp; DIKUNCI]
+    end
+
+    S3e --> DB2[(Database Master Terupdate)] --> OUT[Output #amp; Fitur Publik:<br>1 Dashboard Peta Interaktif<br>2 Cetak Kutipan Letter C + Situasi<br>3 Eksport GeoJSON / SHP BPN Bhumi] --> EN([SELESAI])
+
+    class M,EN startEnd;
+    class S1,S1a,S2,S2a,S2d,S3a,S3b,S3c,S3e,OUT stage1;
+    class S2b,S2c,S3,S3d stage2;
+    class S3a stage3;
+    class DB,DB2 database;
+    class ER1,ER2 error;
