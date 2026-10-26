@@ -8,7 +8,18 @@ $canDelete = Auth::role() === 'admin';
         <button class="btn btn-outline-success">Cari</button>
     </form>
     <?php if ($canEdit): ?><a class="btn btn-success" href="<?= BASE_URL ?>/tanah/tambah">＋ Tambah</a><?php endif; ?>
-    <?php if ($canEdit): ?><a class="btn btn-outline-success" href="<?= BASE_URL ?>/ekspor">⬇ CSV</a><?php endif; ?>
+    <?php if ($canEdit): ?><a class="btn btn-outline-success" href="<?= BASE_URL ?>/tanah/import">📥 Import</a><?php endif; ?>
+    <?php if ($canEdit): ?>
+    <div class="dropdown">
+      <button class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">⬇ Export</button>
+      <ul class="dropdown-menu shadow">
+        <li><a class="dropdown-item" href="<?= BASE_URL ?>/ekspor">📄 CSV</a></li>
+        <li><a class="dropdown-item" href="<?= BASE_URL ?>/tanah/export/excel">📊 Excel (.xls)</a></li>
+        <li><a class="dropdown-item" href="<?= BASE_URL ?>/tanah/export/pdf">📕 PDF</a></li>
+        <li><a class="dropdown-item" href="<?= BASE_URL ?>/tanah/export/gis">🗺 GIS / GeoJSON (Google)</a></li>
+      </ul>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php if (!$tanah): ?>

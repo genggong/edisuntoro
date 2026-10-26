@@ -116,4 +116,134 @@ class TanahController
         }
         exit;
     }
+
+    /* ---------- EKSPOR ---------- */
+
+    public function exportExcel()
+    {
+        $tanah = Database::conn()->query("SELECT * FROM tanah ORDER BY id")->fetchAll();
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="buku-c-pertanahan-sidamulya.xls"');
+        echo "\xEF\xBB\xBF"; // UTF-8 BOM agar Excel kenal
+        echo '<html><head><meta charset="UTF-8"></head><body><table border="1">';
+        echo '<tr><th>No</th><th>No C</th><th>Persil</th><th>Nama</th><th>Alamat</th><th>Blok/Dusun</th><th>Jenis</th><th>Luas (m2)</th><th>Utara</th><th>Timur</th><th>Selatan</th><th>Barat</th><th>Lat</th><th>Lon</th><th>Ket</th></tr>';
+        foreach ($tanah as $i => $t) {
+            echo '<tr><td>'.($i+1).'</td><td>'.htmlspecialchars($t['nomor_c']).'</td><td>'.htmlspecialchars($t['persil']).'</td><td>'.htmlspecialchars($t['nama']).'</td><td>'.htmlspecialchars($t['alamat']).'</td><td>'.htmlspecialchars($t['blok_dusun']).'</td><td>'.htmlspecialchars($t['jenis']).'</td><td>'.$t['luas'].'</td><td>'.htmlspecialchars($t['batas_utara']).'</td><td>'.htmlspecialchars($t['batas_timur']).'</td><td>'.htmlspecialchars($t['batas_selatan']).'</td><td>'.htmlspecialchars($t['batas_barat']).'</td><td>'.$t['lat'].'</td><td>'.$t['lon'].'</td><td>'.htmlspecialchars($t['keterangan']).'</td></tr>';
+        }
+        echo '</table></body></html>';
+        exit;
+    }
+
+    public function exportPdf()
+    {
+        require_once BASE_PATH . '/core/SimplePdf.php';
+        $tanah = Database::conn()->query("SELECT * FROM tanah ORDER BY id")->fetchAll();
+        $pdf = new SimplePdf();
+        $pdf->addTitle('Buku C Pertanahan', 'Desa Sidamulya · Kec. Wanasari · Kab. Brebes');
+        $headers = ['No','No C','Persil','Nama','Blok','Jenis','Luas m2','Lat','Lon'];
+        $rows = [];
+        foreach ($tanah as $i => $t) {
+            $rows[] = [$i + 1, $t['nomor_c'], $t['persil'], $t['nama'], $t['blok_dusun'], $t['jenis'], $t['luas'], $t['lat'], $t['lon']];
+        }
+        $pdf->table($headers, $rows);
+        $pdf->note('Total: ' . count($tanah) . ' bidang · Dihasilkan otomatis oleh Aplikasi Buku C Pertanahan.');
+        $pdf->output('buku-c-pertanahan-sidamulya.pdf');
+    }
+
+    public function exportGeojson()
+    {
+        $tanah = Database::conn()->query("SELECT * FROM tanah ORDER BY id")->fetchAll();
+        $fc = ['type' => 'FeatureCollection', 'name' => 'Buku C Pertanahan Desa Sidamulya', 'features' => []];
+        foreach ($tanah as $t) {
+            $props = [
+                'No C' => $t['nomor_c'], 'Persil' => $t['persil'], 'Pemilik' => $t['nama'],
+                'Blok' => $t['blok_dusun'], 'Jenis' => $t['jenis'], 'Luas m2' => $t['luas'],
+            ];
+            if ($t['lat'] !== null && $t['lon'] !== null) {
+                $fc['features'][] = [
+                    'type' => 'Feature',
+                    'properties' => $props,
+                    'geometry' => ['type' => 'Point', 'coordinates' => [(float)$t['lon'], (float)$t['lat']]],
+                ];
+            } else {
+                $fc['features'][] = ['type' => 'Feature', 'properties' => $props, 'geometry' => null];
+            }
+        }
+        header('Content-Type: application/geo+json; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="buku-c-pertanahan-sidamulya.geojson"');
+        echo json_encode($fc, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        exit;
+    }
+
+    /* ---------- IMPORT ---------- */
+
+    public function importForm()
+    {
+        $title = 'Import Buku C'; $active = 'tanah'; $view = BASE_PATH . '/views/tanah/import.php';
+        require BASE_PATH . '/views/layout.php';
+    }
+
+    public function importTemplate()
+    {
+        $upf = "\xEF\xBB\xBF";
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="contoh-import-buku-c.csv"');
+        echo $upf;
+        $cols = ['nomor_c','persil','nama','alamat','blok_dusun','jenis','luas','batas_utara','batas_timur','batas_selatan','batas_barat','lat','lon','keterangan'];
+        $cols2 = ['No C','Persil','Nama','Alamat','Blok/Dusun','Jenis','Luas (m2)','Utara','Timur','Selatan','Barat','Lat','Lon','Keterangan'];
+        $fh = fopen('php://output', 'w');
+        fputcsv($fh, $cols2);
+        fputcsv($fh, ['C-100','PS-90','Contoh Pemilik','Desa Sidamulya','Blok Karanganyar','sawah',900,'jalan','parit','kebun','rumah',-6.9065,109.024,'contoh baris 1']);
+        fputcsv($fh, ['C-101','PS-91','Contoh Kedua','Desa Sidamulya','Blok Krajan','tegal',500,'sawah','jalan','sungai kecil','kebun',-6.9030,109.0210]);
+        fclose($fh);
+        exit;
+    }
+
+    public function importDo()
+    {
+        csrf_check();
+        $uploads = isset($_FILES['file']) ? $_FILES['file'] : null;
+        if (!$uploads || ($uploads['error'] ?? 1) !== UPLOAD_ERR_OK) {
+            flash_set('error', 'Pilih file CSV/Excel untuk diimport.');
+            redirect('/tanah/import');
+        }
+        $data = file_get_contents($uploads['tmp_name']);
+        $data = preg_replace('/^\xEF\xBB\xBF/', '', $data);   // strip BOM
+        $data = str_replace(["\r\n", "\r"], "\n", $data);      // normalize newline
+
+        $rows = [];
+        // deteksi delimiter: koma atau tab
+        $firstLine = strtok($data, "\n");
+        $delim = (substr_count($firstLine, "\t") > substr_count($firstLine, ',')) ? "\t" : ',';
+        $lines = array_filter(explode("\n", $data), fn($l) => trim($l) !== '');
+
+        // kolom wajib per urutan (selaras template)
+        $keys = ['nomor_c','persil','nama','alamat','blok_dusun','jenis','luas','batas_utara','batas_timur','batas_selatan','batas_barat','lat','lon','keterangan'];
+        $ok = 0; $skip = 0; $dupe = 0;
+        $st = Database::conn()->prepare("INSERT INTO tanah (nomor_c, persil, nama, alamat, blok_dusun, jenis, luas, batas_utara, batas_timur, batas_selatan, batas_barat, lat, lon, keterangan) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+
+        $first = true;
+        foreach ($lines as $line) {
+            $c = str_getcsv($line, $delim);
+            if ($first) { $first = false; continue; } // lewati baris header
+            if (count($c) < 3) { $skip++; continue; }
+            if (trim($c[2] ?? '') === '') { $skip++; continue; } // nama kosong
+            $r = array_pad($c, 14, '');
+            try {
+                $st->execute([
+                    trim($r[0]), trim($r[1]), trim($r[2]), trim($r[3]), trim($r[4]),
+                    !in_array(trim($r[5]), ['sawah','tegal','pekarangan','darat']) ? 'sawah' : trim($r[5]),
+                    (float)$r[6], trim($r[7]), trim($r[8]), trim($r[9]), trim($r[10]),
+                    $r[11] !== '' ? (float)$r[11] : null,
+                    $r[12] !== '' ? (float)$r[12] : null,
+                    trim($r[13])
+                ]);
+                $ok++;
+            } catch (Exception $ex) {
+                $dupe++;
+            }
+        }
+        flash_set('ok', "Import selesai: $ok baris sukses, $skip dilewati (baris kosong/tanpa nama), $dupe gagal (ganda/masalah).");
+        redirect('/tanah');
+    }
 }
