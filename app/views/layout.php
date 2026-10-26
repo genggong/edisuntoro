@@ -23,6 +23,7 @@
   <li class="nav-item"><a class="nav-link <?= $active==='tanah'?'active':'' ?>" href="<?= BASE_URL ?>/tanah">Buku C</a></li>
   <li class="nav-item"><a class="nav-link <?= $active==='statistik'?'active':'' ?>" href="<?= BASE_URL ?>/statistik">Rekap</a></li>
   <li class="nav-item"><a class="nav-link <?= $active==='peta'?'active':'' ?>" href="<?= BASE_URL ?>/peta">Peta</a></li>
+  <li class="nav-item"><a class="nav-link <?= $active==='alur'?'active':'' ?>" href="<?= BASE_URL ?>/alur">Alur</a></li>
   <?php if (Auth::role()==='admin'): ?>
   <li class="nav-item"><a class="nav-link <?= $active==='pengguna'?'active':'' ?>" href="<?= BASE_URL ?>/pengguna">Pengguna</a></li>
   <?php endif; ?>

@@ -27,6 +27,7 @@ $routes = [
     ['GET', '/tanah/hapus/:id', 'TanahController', 'delete', ['admin']],
     ['GET', '/statistik', 'StatistikController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/peta', 'PetaController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/alur', 'FlowchartController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/ekspor', 'TanahController', 'export', ['admin', 'operator']],
     ['GET', '/tanah/export/excel', 'TanahController', 'exportExcel', ['admin', 'operator']],
     ['GET', '/tanah/export/pdf', 'TanahController', 'exportPdf', ['admin', 'operator']],
