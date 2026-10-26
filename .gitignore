@@ -3,3 +3,6 @@ app/db/*.db
 app/db/*.db-wal
 app/db/*.db-shm
 app/db/.DS_Store
+
+# zip deploy (jangan repot)
+buku-c-pertanahan-app.zip
