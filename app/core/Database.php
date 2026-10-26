@@ -53,5 +53,7 @@ class Database
         // seed admin (idempotent)
         $st = $pdo->prepare("INSERT OR IGNORE INTO users (username, password, role) VALUES (?,?,?)");
         $st->execute(['admin', password_hash('admin123', PASSWORD_DEFAULT), 'admin']);
+        $st->execute(['operator', password_hash('operator123', PASSWORD_DEFAULT), 'operator']);
+        $st->execute(['pengguna', password_hash('pengguna123', PASSWORD_DEFAULT), 'pengguna']);
     }
 }

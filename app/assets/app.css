@@ -66,8 +66,7 @@ table.wide th,table.wide td{padding:9px 10px;border-bottom:1px solid var(--line)
 table.wide th{background:#f8faf8;color:var(--green);font-weight:700}
 .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 /* login */
-.login-wrap{min-height:85vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.login-wrap{min-height:85vh;display:flex;align-items:center;justify-content:center;padding:20px}.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.08)}
 .login-card h1{font-size:20px;margin:0 0 4px;color:var(--green)}
 .login-card .sub{margin:0 0 18px;color:var(--muted);font-size:13px}
 .login-card label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
@@ -85,3 +84,11 @@ canvas#map{width:100%;height:auto;border:1px solid var(--line);border-radius:12p
   .grid2{grid-template-columns:1fr 1fr}
   .content{max-width:1000px}
 }
+
+/* role tags */
+.legend.nh{gap:6px;align-items:center;margin:6px 0 2px}
+.role-tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:6px}
+.role-tag.a{background:#dcfce7;color:#14532d}
+.role-tag.o{background:#dbeafe;color:#1d4ed8}
+.role-tag.p{background:#fef3c7;color:#b45309}
+.actions-inline{display:inline-flex;gap:6px;align-items:center}

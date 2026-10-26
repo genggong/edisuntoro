@@ -15,19 +15,25 @@ Auth::start();
 
 // Route table [method, pattern, controller, action, roles]
 $routes = [
-    ['GET', '/', 'DashboardController', 'index', ['admin']],
+    ['GET', '/', 'DashboardController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/login', 'AuthController', 'loginForm', ['guest']],
     ['POST', '/login', 'AuthController', 'login', ['guest']],
-    ['GET', '/logout', 'AuthController', 'logout', ['admin']],
-    ['GET', '/tanah', 'TanahController', 'index', ['admin']],
-    ['GET', '/tanah/tambah', 'TanahController', 'create', ['admin']],
-    ['POST', '/tanah/tambah', 'TanahController', 'store', ['admin']],
-    ['GET', '/tanah/edit/:id', 'TanahController', 'edit', ['admin']],
-    ['POST', '/tanah/update/:id', 'TanahController', 'update', ['admin']],
+    ['GET', '/logout', 'AuthController', 'logout', ['admin', 'operator', 'pengguna']],
+    ['GET', '/tanah', 'TanahController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/tanah/tambah', 'TanahController', 'create', ['admin', 'operator']],
+    ['POST', '/tanah/tambah', 'TanahController', 'store', ['admin', 'operator']],
+    ['GET', '/tanah/edit/:id', 'TanahController', 'edit', ['admin', 'operator']],
+    ['POST', '/tanah/update/:id', 'TanahController', 'update', ['admin', 'operator']],
     ['GET', '/tanah/hapus/:id', 'TanahController', 'delete', ['admin']],
-    ['GET', '/statistik', 'StatistikController', 'index', ['admin']],
-    ['GET', '/peta', 'PetaController', 'index', ['admin']],
-    ['GET', '/ekspor', 'TanahController', 'export', ['admin']],
+    ['GET', '/statistik', 'StatistikController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/peta', 'PetaController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/ekspor', 'TanahController', 'export', ['admin', 'operator']],
+    ['GET', '/pengguna', 'UserController', 'index', ['admin']],
+    ['GET', '/pengguna/tambah', 'UserController', 'create', ['admin']],
+    ['POST', '/pengguna/tambah', 'UserController', 'store', ['admin']],
+    ['GET', '/pengguna/edit/:id', 'UserController', 'edit', ['admin']],
+    ['POST', '/pengguna/update/:id', 'UserController', 'update', ['admin']],
+    ['GET', '/pengguna/hapus/:id', 'UserController', 'delete', ['admin']],
 ];
 
 $method = $_SERVER['REQUEST_METHOD'];

@@ -39,6 +39,11 @@ class Auth
         return $_SESSION['name'] ?? '';
     }
 
+    public static function uid()
+    {
+        return $_SESSION['uid'] ?? null;
+    }
+
     public static function logout()
     {
         $_SESSION = [];

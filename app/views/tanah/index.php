@@ -1,10 +1,14 @@
+<?php
+$canEdit = in_array(Auth::role(), ['admin', 'operator'], true);
+$canDelete = Auth::role() === 'admin';
+?>
 <div class="toolbar">
     <form method="get" class="search">
         <input name="q" value="<?= e($_GET['q'] ?? '') ?>" placeholder="Cari nama / No C / persil / blok">
         <button class="btn small">Cari</button>
     </form>
-    <a class="btn" href="<?= BASE_URL ?>/tanah/tambah">＋ Tambah</a>
-    <a class="btn ghost" href="<?= BASE_URL ?>/ekspor">⬇ CSV</a>
+    <?php if ($canEdit): ?><a class="btn" href="<?= BASE_URL ?>/tanah/tambah">＋ Tambah</a><?php endif; ?>
+    <?php if ($canEdit): ?><a class="btn ghost" href="<?= BASE_URL ?>/ekspor">⬇ CSV</a><?php endif; ?>
 </div>
 
 <?php if (!$tanah): ?>
@@ -30,8 +34,8 @@
             <span><small>Ditambahkan</small><b><?= e($t['created_at']) ?></b></span>
         </div>
         <div class="actions">
-            <a class="btn small ghost" href="<?= BASE_URL ?>/tanah/edit/<?= $t['id'] ?>">✎ Edit</a>
-            <a class="btn small danger" href="<?= BASE_URL ?>/tanah/hapus/<?= $t['id'] ?>" onclick="return confirm('Hapus data ini?')">🗑 Hapus</a>
+            <?php if ($canEdit): ?><a class="btn small ghost" href="<?= BASE_URL ?>/tanah/edit/<?= $t['id'] ?>">✎ Edit</a><?php endif; ?>
+            <?php if ($canDelete): ?><a class="btn small danger" href="<?= BASE_URL ?>/tanah/hapus/<?= $t['id'] ?>" onclick="return confirm('Hapus data ini?')">🗑 Hapus</a><?php endif; ?>
         </div>
     </details>
     <?php endforeach; ?>

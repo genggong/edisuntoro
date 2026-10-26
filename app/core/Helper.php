@@ -53,3 +53,9 @@ function fmt($n, $dec = 0)
 {
     return number_format((float)$n, $dec, ',', '.');
 }
+
+/** Label role dalam bahasa Indonesia */
+function role_label($r)
+{
+    return ['admin' => 'Admin', 'operator' => 'Operator', 'pengguna' => 'Pengguna'][$r] ?? $r;
+}

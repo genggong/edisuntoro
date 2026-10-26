@@ -29,4 +29,6 @@
     <?php endif; ?>
 </section>
 
+<?php if (in_array(Auth::role(), ['admin', 'operator'], true)): ?>
 <a class="btn fab" href="<?= BASE_URL ?>/tanah/tambah">＋ Tambah Buku C</a>
+<?php endif; ?>

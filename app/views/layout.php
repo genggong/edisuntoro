@@ -14,13 +14,16 @@
         <strong>Buku C Pertanahan</strong>
         <span class="chip">Sidamulya · Wanasari · Brebes</span>
     </div>
-    <a class="logout" href="<?= BASE_URL ?>/logout">Keluar</a>
+    <a class="logout" href="<?= BASE_URL ?>/logout"><?= e(role_label(Auth::role())) ?> · Keluar</a>
 </header>
 <nav class="tabs">
     <a href="<?= BASE_URL ?>/" class="tab <?= $active === 'dashboard' ? 'on' : '' ?>">Beranda</a>
     <a href="<?= BASE_URL ?>/tanah" class="tab <?= $active === 'tanah' ? 'on' : '' ?>">Buku C</a>
     <a href="<?= BASE_URL ?>/statistik" class="tab <?= $active === 'statistik' ? 'on' : '' ?>">Rekap</a>
     <a href="<?= BASE_URL ?>/peta" class="tab <?= $active === 'peta' ? 'on' : '' ?>">Peta</a>
+    <?php if (Auth::role() === 'admin'): ?>
+    <a href="<?= BASE_URL ?>/pengguna" class="tab <?= $active === 'pengguna' ? 'on' : '' ?>">Pengguna</a>
+    <?php endif; ?>
 </nav>
 <?php endif; ?>
 
