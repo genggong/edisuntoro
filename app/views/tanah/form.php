@@ -3,7 +3,9 @@
 $r = $row ?: [
     'nomor_c' => '', 'persil' => '', 'nama' => '', 'alamat' => '', 'blok_dusun' => '',
     'jenis' => 'sawah', 'luas' => 0, 'batas_utara' => '', 'batas_timur' => '', 'batas_selatan' => '',
-    'batas_barat' => '', 'lat' => null, 'lon' => null, 'keterangan' => '', 'id' => null,
+    'batas_barat' => '', 'lat' => (isset($_GET['lat']) && $_GET['lat'] !== '') ? (float)$_GET['lat'] : null,
+    'lon' => (isset($_GET['lon']) && $_GET['lon'] !== '') ? (float)$_GET['lon'] : null,
+    'keterangan' => '', 'id' => null,
 ];
 $action = $r['id'] ? BASE_URL . '/tanah/update/' . $r['id'] : BASE_URL . '/tanah/tambah';
 ?>

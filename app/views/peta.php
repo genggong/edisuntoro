@@ -1,69 +1,94 @@
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm mb-4">
   <div class="card-body">
-    <h5 class="fw-bold text-success">Skema Peta Desa Sidamulya</h5>
-    <p class="text-muted small">Wilayah (kotak) + titik koordinat bidang tanah yang sudah diisi lat/lon. Biru = titik bidang, merah = pusat desa.</p>
-    <div class="table-responsive">
-        <canvas id="map" width="720" height="560"></canvas>
-    </div>
-    <div class="legend">
-        <span><i class="dot dot-green"></i> Pusat desa -6.90535, 109.02330</span>
-        <span><i class="dot dot-blue"></i> Bidang tanah (lat/lon terisi)</span>
+    <h5 class="fw-bold text-success">🗺️ Peta Interaktif Desa Sidamulya</h5>
+    <p class="text-muted small mb-2">
+      Base layer <strong>satelit</strong> &amp; <strong>jalan</strong>. Klik peta untuk <strong>digitasi titik lahan</strong>,
+      atau tool ⎔ untuk <strong>menggambar batas (polygon)</strong>. Titik/koordinat bisa langsung diteruskan ke form Tambah.
+    </p>
+    <div id="map" style="height:440px;border-radius:12px;overflow:hidden"></div>
+
+    <div class="row g-2 mt-3">
+      <div class="col-12 col-md-6">
+        <div class="card border-light bg-light"><div class="card-body py-3">
+          <div class="text-muted small">📍 Koordinat dipilih</div>
+          <div id="pick" class="mono fs-6 fw-semibold" style="word-break:break-all">Klik peta untuk memilih titik</div>
+          <a id="pickAdd" class="btn btn-success btn-sm mt-2" style="display:none" href="#">＋ Tambah Titik Lahan</a>
+        </div></div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="card border-light bg-light"><div class="card-body py-3">
+          <div class="text-muted small" style="color:#6b7280">⎔ Polygon batas lahan</div>
+          <div id="poly" class="small text-muted" style="word-break:break-all">Gambar polygon dulu (tool ⎔ kiri).</div>
+          <button class="btn btn-outline-success btn-sm mt-2" id="copyPoly">Use titik awal ke form</button>
+        </div></div>
+      </div>
     </div>
   </div>
 </div>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script>
 (function () {
-    const wilayah = <?= json_encode($wilayah) ?>;
-    const tanah = <?= json_encode($tanah) ?>;
-    const pusat = <?= json_encode($pusat) ?>;
-    const cv = document.getElementById('map');
-    const ctx = cv.getContext('2d');
-    const W = cv.width, H = cv.height;
-    const PAD = 60;
+    var BASE_URL = <?= json_encode(BASE_URL) ?>;
+    var tanah = <?= json_encode($tanah) ?>;
+    var pusat = [-6.90535, 109.02330];
+    var map = L.map('map').setView(pusat, 15);
 
-    const all = [...wilayah, ...tanah.map(t => ({ lat: +t.lat, lon: +t.lon })), pusat];
-    let minLat = Math.min(...all.map(p => p.lat));
-    let maxLat = Math.max(...all.map(p => p.lat));
-    let minLon = Math.min(...all.map(p => p.lon));
-    let maxLon = Math.max(...all.map(p => p.lon));
-    const spanLat = (maxLat - minLat) || 0.01;
-    const spanLon = (maxLon - minLon) || 0.01;
-    const k = Math.min((W - 2 * PAD) / spanLon, (H - 2 * PAD) / spanLat);
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'© OpenStreetMap'});
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, attribution:'Esri'});
+    sat.addTo(map);
+    L.control.layers({'🛰 Satelit': sat, '🗺 Jalan (OSM)': osm}).addTo(map);
 
-    function X(lon) { return (W / 2) + (lon - (minLon + maxLon) / 2) * k; }
-    function Y(lat) { return (H / 2) - (lat - (minLat + maxLat) / 2) * k; }
+    var drawn = L.featureGroup().addTo(map);
 
-    ctx.fillStyle = '#eef7ee';
-    ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = '#d6e6d6';
-    ctx.lineWidth = 1;
-    for (let g = 0; g <= 8; g++) {
-        ctx.beginPath(); ctx.moveTo(PAD + g * (W - 2 * PAD) / 8, PAD); ctx.lineTo(PAD + g * (W - 2 * PAD) / 8, H - PAD); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(PAD, PAD + g * (H - 2 * PAD) / 8); ctx.lineTo(W - PAD, PAD + g * (H - 2 * PAD) / 8); ctx.stroke();
-    }
-    ctx.beginPath();
-    wilayah.forEach((p, i) => { i ? ctx.lineTo(X(p.lon), Y(p.lat)) : ctx.moveTo(X(p.lon), Y(p.lat)); });
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(20,83,45,0.06)';
-    ctx.fill();
-    ctx.strokeStyle = '#14532d';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = '#14532d';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('109.003, -6.925', 6, H - PAD + 16);
-    ctx.fillText('109.043, -6.885', W - 150, 14);
-    ctx.beginPath(); ctx.arc(X(pusat.lon), Y(pusat.lat), 8, 0, Math.PI * 2);
-    ctx.fillStyle = '#dc2626'; ctx.fill();
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillText('Pusat Desa', X(pusat.lon) + 12, Y(pusat.lat) - 10);
-    tanah.forEach(t => {
-        ctx.beginPath(); ctx.arc(X(+t.lon), Y(+t.lat), 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#2563eb'; ctx.fill();
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    tanah.forEach(function (t) {
+        if (t.lat === null || t.lon === null) return;
+        L.marker([Number(t.lat), Number(t.lon)]).addTo(map)
+          .bindPopup('<b>' + (t.nama||'') + '</b><br>No C: ' + (t.nomor_c||'-') + '<br>Jenis: ' + t.jenis + '<br>Luas: ' + t.luas + ' m²');
     });
-    ctx.fillStyle = '#374151';
-    ctx.fillText('Koordinat wilayah Desa Sidamulya · Kec. Wanasari · Kab. Brebes (skema)', 10, H - 6);
+    L.marker(pusat, {icon: L.divIcon({className:'', html:'<div style="width:14px;height:14px;background:#dc2626;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.3)"></div>'})}).addTo(map).bindPopup('Pusat Desa');
+
+    // ---- klik pilih titik ----
+    var pickTmp = null;
+    map.on('click', function (e) {
+        if (pickTmp) map.removeLayer(pickTmp);
+        pickTmp = L.marker(e.latlng).addTo(map);
+        var lat = e.latlng.lat.toFixed(7), lon = e.latlng.lng.toFixed(7);
+        document.getElementById('pick').textContent = lat + ', ' + lon;
+        var a = document.getElementById('pickAdd');
+        a.style.display = 'inline-block';
+        a.href = BASE_URL + '/tanah/tambah?lat=' + lat + '&lon=' + lon;
+    });
+
+    // ---- draw polygon (digitasi batas) ----
+    var drawControl = new L.Control.Draw({
+        edit: {featureGroup: drawn},
+        draw: {polyline:false, rectangle:false, circle:false, circlemarker:false, marker:false}
+    });
+    map.addControl(drawControl);
+
+    function flatCoords(coords, out) {
+        if (!Array.isArray(coords)) return;
+        coords.forEach(function (c) {
+            if (typeof c[0] === 'number') { out.push(c[1].toFixed(6) + ',' + c[0].toFixed(6)); }
+            else flatCoords(c, out);
+        });
+    }
+    var pts = [];
+    map.on(L.Draw.Event.CREATED, function (e) {
+        if (!(e.layer instanceof L.Polygon) && !(e.layer instanceof L.Polyline)) return;
+        drawn.addLayer(e.layer);
+        var g = e.layer.toGeoJSON().geometry || {coordinates: []};
+        pts = []; flatCoords(g.coordinates, pts);
+        document.getElementById('poly').textContent = pts.join(' → ');
+    });
+    document.getElementById('copyPoly').addEventListener('click', function () {
+        if (!pts.length) { alert('Gambar polygon (tool ⎔) dulu.'); return; }
+        var p = pts[0].split(',');
+        window.open(BASE_URL + '/tanah/tambah?lat=' + p[0].trim() + '&lon=' + (p[1]||'').trim(), '_blank');
+    });
 })();
 </script>
