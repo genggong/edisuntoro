@@ -9,6 +9,7 @@ Aplikasi **Buku C (Letter C) pertanahan** untuk Desa **Sidamulya, Kec. Wanasari,
 - **Buku C** — daftar kartu (mobile) + tabel (desktop), cari, tambah, edit, hapus.
 - **Rekap** — per jenis tanah & per blok/dusun.
 - **Peta** — skema titik koordinat wilayah (canvas) + titik bidang yang ber-lat/lon.
+- **Anti-Overlap & Cek Luas (STAGE 2)** — di menu Peta: render polygon tiap bidang, gambar polygon lahan lalu tekan *Cek Overlap & Luas* → tolak bila tumpang tindih, peringatan bila selisih luas Buku C vs polygon >2%.
 - **Mutasi & Verifikasi (STAGE 3)** — alamat per bidang (`Ajuan → AKTIF/Batal`), verifikasi & approval Kepala Desa, ajukan mutasi (jual/waris/hibah/pecah) dengan riwayat + persetujuan; bidang AKTIF terkunci (edit/hapus hanya untuk admin).
 - **Ekspor CSV** semua data.
 - **Role akses** — admin / operator / pengguna (lihat tabel di bawah).

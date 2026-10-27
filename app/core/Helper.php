@@ -64,8 +64,8 @@ function role_label($r)
 function status_label($s)
 {
     $m = [
-        'ajuan'     => ['Ajuan', 'warning'],
-        'aktif'     => ['AKTIF', 'success'],
+        'ajuan'     => ['Draft', 'warning'],
+        'aktif'     => ['Aktif · Terkunci', 'success'],
         'batal'     => ['Batal', 'secondary'],
         'pending'   => ['Pending', 'warning'],
         'disetujui' => ['Disetujui', 'success'],

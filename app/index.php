@@ -32,6 +32,7 @@ $routes = [
     ['GET', '/tanah/hapus/:id', 'TanahController', 'delete', ['admin']],
     ['GET', '/statistik', 'StatistikController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/peta', 'PetaController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/peta/cek', 'PetaController', 'cek', ['admin', 'operator']],
     ['GET', '/mutasi', 'MutasiController', 'index', ['admin', 'operator']],
     ['GET', '/mutasi/:id', 'MutasiController', 'form', ['admin', 'operator']],
     ['POST', '/mutasi/:id', 'MutasiController', 'store', ['admin', 'operator']],

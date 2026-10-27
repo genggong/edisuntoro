@@ -23,6 +23,24 @@
         </div></div>
       </div>
     </div>
+
+    <div class="card border-0 shadow-sm mt-3" >
+      <div class="card-body">
+        <h6 class="fw-bold text-success mb-2">🛡️ Validasi Spasial (Anti-Overlap &amp; Cek Luas) — STAGE 2</h6>
+        <div class="row g-2 align-items-end">
+          <div class="col-6 col-md-3">
+            <label class="form-label small text-muted mb-0">Luas Buku C (m²)</label>
+            <input id="luasBuku" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="opsional">
+          </div>
+          <div class="col-6 col-md-3">
+            <button class="btn btn-success btn-sm w-100" id="cekValidasi">Cek Overlap &amp; Luas</button>
+          </div>
+          <div class="col-12 mt-2">
+            <div id="hasilValidasi" class="small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -45,6 +63,21 @@
     var drawn = L.featureGroup().addTo(map);
 
     tanah.forEach(function (t) {
+        if (!t) return;
+        // polygon bidang (Anti-Overlap visual)
+        if (t.poligon) {
+            var ring = [];
+            String(t.poligon).split(';').forEach(function (ch) {
+                var p = ch.split(',');
+                if (p.length >= 2 && !isNaN(p[0]) && !isNaN(p[1])) ring.push([Number(p[0]), Number(p[1])]);
+            });
+            if (ring.length >= 3) {
+                var col = (t.status === 'aktif') ? '#15803d' : (t.status === 'batal' ? '#6b7280' : '#d97706');
+                L.polygon(ring, {color:col, weight:2, fill:true, fillOpacity:0.15, dashArray:'6 3'})
+                  .addTo(map)
+                  .bindTooltip((t.nomor_c||'-') + ' · ' + (t.nama||''));
+            }
+        }
         if (t.lat === null || t.lon === null) return;
         L.marker([Number(t.lat), Number(t.lon)]).addTo(map)
           .bindPopup('<b>' + (t.nama||'') + '</b><br>No C: ' + (t.nomor_c||'-') + '<br>Jenis: ' + t.jenis + '<br>Luas: ' + t.luas + ' m²');
@@ -78,17 +111,39 @@
         });
     }
     var pts = [];
+    var polyStr = '';
     map.on(L.Draw.Event.CREATED, function (e) {
         if (!(e.layer instanceof L.Polygon) && !(e.layer instanceof L.Polyline)) return;
         drawn.addLayer(e.layer);
         var g = e.layer.toGeoJSON().geometry || {coordinates: []};
         pts = []; flatCoords(g.coordinates, pts);
+        polyStr = pts.join(';');
         document.getElementById('poly').textContent = pts.join(' → ');
     });
     document.getElementById('copyPoly').addEventListener('click', function () {
         if (!pts.length) { alert('Gambar polygon (tool ⎔) dulu.'); return; }
         var p = pts[0].split(',');
         window.open(BASE_URL + '/tanah/tambah?lat=' + p[0].trim() + '&lon=' + (p[1]||'').trim(), '_blank');
+    });
+    // Anti-Overlap + cek selisih luas (server, satu sumber logika dgn Polygon.php)
+    document.getElementById('cekValidasi').addEventListener('click', function () {
+        var out = document.getElementById('hasilValidasi');
+        if (!polyStr) { out.innerHTML = '<span class="text-danger">Gambar polygon (tool ⎔) dulu sebelum dicek.</span>'; return; }
+        var luas = document.getElementById('luasBuku').value;
+        var url = BASE_URL + '/peta/cek?poligon=' + encodeURIComponent(polyStr) + (luas !== '' ? '&luas=' + encodeURIComponent(luas) : '');
+        out.innerHTML = '<span class="text-muted">⏳ Memeriksa…</span>';
+        fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+            var h = '';
+            if (d.overlap) {
+                h += '<div class="alert alert-danger py-2 mb-1">⛔ <b>OVERLAP!</b> Tumpang tindih dgn No C ' + d.overlap.no_c + ' (' + d.overlap.nama + '). Entry basis dilarang.</div>';
+            } else {
+                h += '<div class="alert alert-success py-2 mb-1">✅ Anti-overlap: <b>AMAN</b> · 0% tumpang tindih. Luas polygon ± <b>' + d.area.toLocaleString('id-ID') + ' m²</b>.</div>';
+            }
+            if (d.warn) h += '<div class="alert alert-warning py-2 mb-1">⚠️ ' + d.warn + '</div>';
+            else if (d.luas_buku) h += '<div class="text-muted">Selisih luas dalam toleransi (≤2%): <b>OK</b>.</div>';
+            if (!d.ok && d.pesan) h += '<div class="alert alert-danger py-2 mb-1">' + d.pesan + '</div>';
+            out.innerHTML = h || d.pesan;
+        }).catch(function () { out.innerHTML = '<span class="text-danger">Gagal memeriksa. Coba lagi.</span>'; });
     });
 })();
 </script>
