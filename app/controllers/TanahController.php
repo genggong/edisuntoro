@@ -124,6 +124,10 @@ class TanahController
             flash_set('error', 'Data tidak ditemukan.');
             redirect('/tanah');
         }
+        if ($row['status'] === 'aktif' && Auth::role() !== 'admin') {
+            flash_set('error', 'Bidang berstatus AKTIF terkunci. Hanya admin yang dapat mengubah.');
+            redirect('/tanah');
+        }
         $title = 'Edit Buku C'; $active = 'tanah'; $view = BASE_PATH . '/views/tanah/form.php';
         require BASE_PATH . '/views/layout.php';
     }
@@ -131,6 +135,17 @@ class TanahController
     public function update($id)
     {
         csrf_check();
+        $cek = Database::conn()->prepare("SELECT status FROM tanah WHERE id = ?");
+        $cek->execute([$id]);
+        $old = $cek->fetch();
+        if (!$old) {
+            flash_set('error', 'Data tidak ditemukan.');
+            redirect('/tanah');
+        }
+        if ($old['status'] === 'aktif' && Auth::role() !== 'admin') {
+            flash_set('error', 'Bidang berstatus AKTIF terkunci. Hanya admin yang dapat mengubah.');
+            redirect('/tanah/edit/' . $id);
+        }
         $d = $this->data(Database::conn());
         if ($d['nama'] === '') {
             flash_set('error', 'Nama pemilik wajib diisi.');
@@ -155,9 +170,41 @@ class TanahController
 
     public function delete($id)
     {
-        $st = Database::conn()->prepare("DELETE FROM tanah WHERE id = ?");
+        $st = Database::conn()->prepare("SELECT * FROM tanah WHERE id = ?");
         $st->execute([$id]);
+        $row = $st->fetch();
+        if (!$row) {
+            flash_set('error', 'Data tidak ditemukan.');
+            redirect('/tanah');
+        }
+        if ($row['status'] === 'aktif' && Auth::role() !== 'admin') {
+            flash_set('error', 'Bidang berstatus AKTIF terkunci. Hanya admin yang dapat menghapus.');
+            redirect('/tanah');
+        }
+        $d = Database::conn()->prepare("DELETE FROM tanah WHERE id = ?");
+        $d->execute([$id]);
         flash_set('ok', 'Data dihapus.');
+        redirect('/tanah');
+    }
+
+    /** STAGE 3 — Verifikasi & Approval Kades: setujui (aktif) atau tolak (batal) satu bidang. */
+    public function verifikasiStatus($id)
+    {
+        $st = Database::conn()->prepare("SELECT * FROM tanah WHERE id = ?");
+        $st->execute([$id]);
+        $row = $st->fetch();
+        if (!$row) {
+            flash_set('error', 'Data tidak ditemukan.');
+            redirect('/tanah');
+        }
+        $setuju = ($_GET['aksi'] ?? 'setujui') !== 'tolak';
+        $status = $setuju ? 'aktif' : 'batal';
+        Database::conn()->prepare(
+            "UPDATE tanah SET status = ?, updated_at = datetime('now','localtime') WHERE id = ?"
+        )->execute([$status, $id]);
+        flash_set('ok', $setuju
+            ? 'Bidang disetujui → status AKTIF (terkunci).'
+            : 'Ajuan bidang ditolak → status BATAL.');
         redirect('/tanah');
     }
 

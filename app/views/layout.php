@@ -23,6 +23,9 @@
   <li class="nav-item"><a class="nav-link <?= $active==='tanah'?'active':'' ?>" href="<?= BASE_URL ?>/tanah">Buku C</a></li>
   <li class="nav-item"><a class="nav-link <?= $active==='statistik'?'active':'' ?>" href="<?= BASE_URL ?>/statistik">Rekap</a></li>
   <li class="nav-item"><a class="nav-link <?= $active==='peta'?'active':'' ?>" href="<?= BASE_URL ?>/peta">Peta</a></li>
+  <?php if (in_array(Auth::role(), ['admin','operator'], true)): ?>
+  <li class="nav-item"><a class="nav-link <?= $active==='mutasi'?'active':'' ?>" href="<?= BASE_URL ?>/mutasi">Mutasi</a></li>
+  <?php endif; ?>
   <li class="nav-item"><a class="nav-link <?= $active==='alur'?'active':'' ?>" href="<?= BASE_URL ?>/alur">Alur</a></li>
   <?php if (Auth::role()==='admin'): ?>
   <li class="nav-item"><a class="nav-link <?= $active==='pengguna'?'active':'' ?>" href="<?= BASE_URL ?>/pengguna">Pengguna</a></li>

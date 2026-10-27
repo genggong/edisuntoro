@@ -37,6 +37,27 @@ class Database
         return self::$pdo;
     }
 
+    /** Cek apakah kolom ada di tabel (SQLite & MySQL). */
+    public static function tableHasColumn($table, $col)
+    {
+        $pdo = self::conn();
+        if (self::is_mysql()) {
+            $st = $pdo->prepare(
+                "SELECT COUNT(*) FROM information_schema.columns
+                 WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?"
+            );
+            $st->execute([$table, $col]);
+            return (int)$st->fetchColumn() > 0;
+        }
+        $st = $pdo->query("PRAGMA table_info(" . $table . ")");
+        foreach ($st->fetchAll() as $r) {
+            if ($r['name'] === $col) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Migrasi — jalankan sekali; aman dijalankan ulang. */
     public static function migrate()
     {
@@ -107,6 +128,46 @@ class Database
         try {
             $pdo->exec("ALTER TABLE tanah ADD COLUMN poligon TEXT");
         } catch (Exception $e) { /* sudah ada */ }
+
+        // STAGE 3 — status verifikasi (ajuan/aktif/batal) di setiap bidang
+        try {
+            $pdo->exec("ALTER TABLE tanah ADD COLUMN status TEXT DEFAULT 'ajuan'");
+        } catch (Exception $e) { /* sudah ada */ }
+
+        // STAGE 3 — tabel mutasi (riwayat jual/waris/hibah/pecah + persetujuan Kades)
+        if (!$mysql) {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS mutasi (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tanah_id INTEGER NOT NULL,
+                jenis TEXT NOT NULL DEFAULT 'jual',
+                pemilik_lama TEXT,
+                pemilik_baru TEXT,
+                luas_lama REAL DEFAULT 0,
+                luas_baru REAL DEFAULT 0,
+                keterangan TEXT,
+                status TEXT NOT NULL DEFAULT 'pending',
+                dibuat_oleh TEXT,
+                created_at TEXT DEFAULT (datetime('now','localtime')),
+                diproses_oleh TEXT,
+                diproses_at TEXT
+            )");
+        } else {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS mutasi (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                tanah_id INT NOT NULL,
+                jenis VARCHAR(20) NOT NULL DEFAULT 'jual',
+                pemilik_lama VARCHAR(150),
+                pemilik_baru VARCHAR(150),
+                luas_lama DECIMAL(12,2) DEFAULT 0,
+                luas_baru DECIMAL(12,2) DEFAULT 0,
+                keterangan TEXT,
+                status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                dibuat_oleh VARCHAR(80),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                diproses_oleh VARCHAR(80),
+                diproses_at TIMESTAMP NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
     }
 
     public static function is_mysql()

@@ -59,3 +59,24 @@ function role_label($r)
 {
     return ['admin' => 'Admin', 'operator' => 'Operator', 'pengguna' => 'Pengguna'][$r] ?? $r;
 }
+
+/** Label + warna untuk status bidang & mutasi (Stage 3). */
+function status_label($s)
+{
+    $m = [
+        'ajuan'     => ['Ajuan', 'warning'],
+        'aktif'     => ['AKTIF', 'success'],
+        'batal'     => ['Batal', 'secondary'],
+        'pending'   => ['Pending', 'warning'],
+        'disetujui' => ['Disetujui', 'success'],
+        'ditolak'   => ['Ditolak', 'danger'],
+    ];
+    $r = $m[$s] ?? [$s, 'secondary'];
+    return '<span class="badge text-bg-' . $r[1] . '">' . e($r[0]) . '</span>';
+}
+
+/** Label jenis mutasi. */
+function mutasi_jenis($j)
+{
+    return ['jual' => 'Jual Beli', 'waris' => 'Waris', 'hibah' => 'Hibah', 'pecah' => 'Pemecahan'][$j] ?? $j;
+}

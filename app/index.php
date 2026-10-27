@@ -13,6 +13,11 @@ foreach (glob(BASE_PATH . '/controllers/*.php') as $f) {
 
 Auth::start();
 
+// Auto-migrasi ringan: hanya jalan sekali saat kolom/tabel baru belum ada (STAGE 3)
+if (!Database::tableHasColumn('tanah', 'status')) {
+    Database::migrate();
+}
+
 // Route table [method, pattern, controller, action, roles]
 $routes = [
     ['GET', '/', 'DashboardController', 'index', ['admin', 'operator', 'pengguna']],
@@ -27,6 +32,12 @@ $routes = [
     ['GET', '/tanah/hapus/:id', 'TanahController', 'delete', ['admin']],
     ['GET', '/statistik', 'StatistikController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/peta', 'PetaController', 'index', ['admin', 'operator', 'pengguna']],
+    ['GET', '/mutasi', 'MutasiController', 'index', ['admin', 'operator']],
+    ['GET', '/mutasi/:id', 'MutasiController', 'form', ['admin', 'operator']],
+    ['POST', '/mutasi/:id', 'MutasiController', 'store', ['admin', 'operator']],
+    ['GET', '/mutasi/setujui/:id', 'MutasiController', 'approve', ['admin']],
+    ['GET', '/mutasi/tolak/:id', 'MutasiController', 'reject', ['admin']],
+    ['GET', '/tanah/verifikasi/:id', 'TanahController', 'verifikasiStatus', ['admin']],
     ['GET', '/alur', 'FlowchartController', 'index', ['admin', 'operator', 'pengguna']],
     ['GET', '/ekspor', 'TanahController', 'export', ['admin', 'operator']],
     ['GET', '/tanah/export/excel', 'TanahController', 'exportExcel', ['admin', 'operator']],

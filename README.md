@@ -9,15 +9,16 @@ Aplikasi **Buku C (Letter C) pertanahan** untuk Desa **Sidamulya, Kec. Wanasari,
 - **Buku C** — daftar kartu (mobile) + tabel (desktop), cari, tambah, edit, hapus.
 - **Rekap** — per jenis tanah & per blok/dusun.
 - **Peta** — skema titik koordinat wilayah (canvas) + titik bidang yang ber-lat/lon.
+- **Mutasi & Verifikasi (STAGE 3)** — alamat per bidang (`Ajuan → AKTIF/Batal`), verifikasi & approval Kepala Desa, ajukan mutasi (jual/waris/hibah/pecah) dengan riwayat + persetujuan; bidang AKTIF terkunci (edit/hapus hanya untuk admin).
 - **Ekspor CSV** semua data.
 - **Role akses** — admin / operator / pengguna (lihat tabel di bawah).
 
 ## Role Akses
-| Role | Beranda | Buku C | Tambah/Edit | Hapus | Rekap/Peta | Ekspor | Kelola Akun |
-|------|:------:|:------:|:-----------:|:-----:|:----------:|:------:|:-----------:|
-| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Operator** | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| **Pengguna** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Role | Beranda | Buku C | Tambah/Edit | Hapus | Rekap/Peta | Mutasi | Verifikasi (Kades) | Ekspor | Kelola Akun |
+|------|:------:|:------:|:-----------:|:-----:|:----------:|:------:|:------------------:|:------:|:-----------:|
+| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Operator** | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| **Pengguna** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 Akun contoh (ubah segera): `admin/admin123`, `operator/operator123`, `pengguna/pengguna123`.
 

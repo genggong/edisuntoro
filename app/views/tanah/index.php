@@ -1,6 +1,8 @@
 <?php
 $canEdit = in_array(Auth::role(), ['admin', 'operator'], true);
 $canDelete = Auth::role() === 'admin';
+$isAdmin = Auth::role() === 'admin';
+$isOp = in_array(Auth::role(), ['admin', 'operator'], true);
 ?>
 <div class="d-flex flex-wrap gap-2 mb-3">
     <form method="get" class="d-flex flex-grow-1 gap-2">
@@ -32,9 +34,11 @@ $canDelete = Auth::role() === 'admin';
                 <span class="rec-id">No C: <?= e($t['nomor_c'] ?: '-') ?></span>
                 <span class="rec-name"><?= e($t['nama']) ?></span>
                 <span class="rec-luas"><?= fmt($t['luas']) ?> m²</span>
+                <span class="ms-auto"><?= status_label($t['status'] ?? 'ajuan') ?></span>
             </summary>
             <div class="border-top px-3 pt-3 pb-0">
                 <div class="grid2 pb-2">
+                    <span><small>Status</small><b><?= status_label($t['status'] ?? 'ajuan') ?></b></span>
                     <span><small>Persil</small><b><?= e($t['persil'] ?: '-') ?></b></span>
                     <span><small>Blok / Dusun</small><b><?= e($t['blok_dusun'] ?: '-') ?></b></span>
                     <span><small>Jenis</small><b><?= e(ucfirst($t['jenis'])) ?></b></span>
@@ -47,7 +51,16 @@ $canDelete = Auth::role() === 'admin';
                     <span><small>Ditambahkan</small><b><?= e($t['created_at']) ?></b></span>
                 </div>
                 <div class="rec-actions pb-3">
+                    <?php if ($isOp): ?><a class="btn btn-sm btn-success" href="<?= BASE_URL ?>/mutasi/<?= $t['id'] ?>">✚ Mutasi</a><?php endif; ?>
                     <?php if ($canEdit): ?><a class="btn btn-sm btn-outline-success" href="<?= BASE_URL ?>/tanah/edit/<?= $t['id'] ?>">✎ Edit</a><?php endif; ?>
+                    <?php if ($isAdmin): ?>
+                        <?php if (($t['status'] ?? 'ajuan') === 'ajuan'): ?>
+                            <a class="btn btn-sm btn-outline-success" href="<?= BASE_URL ?>/tanah/verifikasi/<?= $t['id'] ?>?aksi=setujui" onclick="return confirm('Setujui (AKTIF & terkunci)?')">✓ Setujui</a>
+                            <a class="btn btn-sm btn-outline-danger" href="<?= BASE_URL ?>/tanah/verifikasi/<?= $t['id'] ?>?aksi=tolak" onclick="return confirm('Tolak (status BATAL)?')">✗ Tolak</a>
+                        <?php else: ?>
+                            <a class="btn btn-sm btn-outline-primary" href="<?= BASE_URL ?>/tanah/verifikasi/<?= $t['id'] ?>?aksi=setujui" onclick="return confirm('Ubah status jadi AKTIF & terkunci?')">↺ Kunci AKTIF</a>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     <?php if ($canDelete): ?><a class="btn btn-sm btn-outline-danger" href="<?= BASE_URL ?>/tanah/hapus/<?= $t['id'] ?>" onclick="return confirm('Hapus data ini?')">🗑 Hapus</a><?php endif; ?>
                 </div>
             </div>
@@ -60,7 +73,7 @@ $canDelete = Auth::role() === 'admin';
   <div class="table-responsive">
     <table class="table table-bordered align-middle mb-0">
         <thead class="table-light"><tr>
-            <th>No C</th><th>Persil</th><th>Nama</th><th>Blok</th><th>Jenis</th><th>Luas m²</th><th>Koordinat</th><th class="text-end">Aksi</th>
+            <th>No C</th><th>Persil</th><th>Nama</th><th>Blok</th><th>Jenis</th><th>Luas m²</th><th>Status</th><th class="text-end">Aksi</th>
         </tr></thead>
         <tbody>
         <?php foreach ($tanah as $i => $t): ?>
@@ -71,8 +84,9 @@ $canDelete = Auth::role() === 'admin';
                 <td><?= e($t['blok_dusun'] ?: '-') ?></td>
                 <td><?= e(ucfirst($t['jenis'])) ?></td>
                 <td><?= fmt($t['luas']) ?></td>
-                <td class="mono"><?= $t['lat'] !== null ? number_format($t['lat'],5,'.','') . ', ' . number_format($t['lon'],5,'.','') : '-' ?></td>
+                <td><?= status_label($t['status'] ?? 'ajuan') ?></td>
                 <td class="text-end text-nowrap">
+                    <?php if ($isOp): ?><a class="text-success me-2" href="<?= BASE_URL ?>/mutasi/<?= $t['id'] ?>" title="Mutasi">✚</a><?php endif; ?>
                     <?php if ($canEdit): ?><a class="text-success me-2" href="<?= BASE_URL ?>/tanah/edit/<?= $t['id'] ?>">✎</a><?php endif; ?>
                     <?php if ($canDelete): ?><a class="text-danger" href="<?= BASE_URL ?>/tanah/hapus/<?= $t['id'] ?>" onclick="return confirm('Hapus?')">🗑</a><?php endif; ?>
                 </td>
