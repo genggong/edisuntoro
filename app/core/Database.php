@@ -102,6 +102,11 @@ class Database
         $st->execute(['admin', password_hash('admin123', PASSWORD_DEFAULT), 'admin']);
         $st->execute(['operator', password_hash('operator123', PASSWORD_DEFAULT), 'operator']);
         $st->execute(['pengguna', password_hash('pengguna123', PASSWORD_DEFAULT), 'pengguna']);
+
+        // tambahan kolom poligon (validasi spasial) — idempotent
+        try {
+            $pdo->exec("ALTER TABLE tanah ADD COLUMN poligon TEXT");
+        } catch (Exception $e) { /* sudah ada */ }
     }
 
     public static function is_mysql()

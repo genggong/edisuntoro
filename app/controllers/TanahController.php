@@ -1,4 +1,5 @@
 <?php
+require_once BASE_PATH . '/core/Polygon.php';
 class TanahController
 {
     private function data($pdo)
@@ -18,7 +19,48 @@ class TanahController
             'lat' => $_POST['lat'] !== '' ? (float)$_POST['lat'] : null,
             'lon' => $_POST['lon'] !== '' ? (float)$_POST['lon'] : null,
             'keterangan' => trim($_POST['keterangan'] ?? ''),
+            'poligon' => trim($_POST['poligon'] ?? ''),
         ];
+    }
+
+    /**
+     * Validasi spasial (STAGE 2):
+     *  - overlap dgn bidang lain (tolak)
+     *  - selisih luas Buku C vs luas polygon (peringatan bila >2%)
+     * @return array {block:string|null, warn:string|null}
+     */
+    private function validateSpatial(array $d, $excludeId = null)
+    {
+        $res = ['block' => null, 'warn' => null];
+        $ring = Polygon::parse($d['poligon']);
+        if (!$ring) return $res; // tanpa polygon, tanpa validasi
+
+        // overlap
+        $pdo = Database::conn();
+        $sql = "SELECT id, nama, poligon FROM tanah WHERE poligon IS NOT NULL AND poligon <> ''";
+        $params = [];
+        if ($excludeId !== null) { $sql .= " AND id <> ?"; $params[] = (int)$excludeId; }
+        $st = $pdo->prepare($sql);
+        $st->execute($params);
+        foreach ($st->fetchAll() as $r) {
+            $o = Polygon::parse($r['poligon']);
+            if ($o && Polygon::overlaps($ring, $o)) {
+                $res['block'] = "Tumpang tindih / overlap dengan bidang '{$r['nama']}' (id {$r['id']}). Entry DITOLAK. Sesuaikan polygon dulu.";
+                return $res;
+            }
+        }
+
+        // selisih luas (bila luas diisi > 0 dan ada polygon)
+        if ($d['luas'] > 0) {
+            $area = Polygon::areaM2($ring);
+            if ($area > 0) {
+                $selisih = abs($area - $d['luas']) / $d['luas'] * 100;
+                if ($selisih > 2) {
+                    $res['warn'] = "Selisih luas: Buku C {$d['luas']} m² vs polygon " . round($area) . " m² (" . round($selisih, 1) . "% > toleransi 2%). Perlu re-ukur lapangan.";
+                }
+            }
+        }
+        return $res;
     }
 
     public function index()
@@ -55,15 +97,21 @@ class TanahController
             flash_set('error', 'Nama pemilik wajib diisi.');
             redirect('/tanah/tambah');
         }
+        $v = $this->validateSpatial($d);
+        if ($v['block']) {
+            flash_set('error', $v['block']);
+            redirect('/tanah/tambah');
+        }
         $st = Database::conn()->prepare(
-            "INSERT INTO tanah (nomor_c, persil, nama, alamat, blok_dusun, jenis, luas, batas_utara, batas_timur, batas_selatan, batas_barat, lat, lon, keterangan)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO tanah (nomor_c, persil, nama, alamat, blok_dusun, jenis, luas, batas_utara, batas_timur, batas_selatan, batas_barat, lat, lon, keterangan, poligon)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
         $st->execute([
             $d['nomor_c'], $d['persil'], $d['nama'], $d['alamat'], $d['blok_dusun'], $d['jenis'], $d['luas'],
-            $d['batas_utara'], $d['batas_timur'], $d['batas_selatan'], $d['batas_barat'], $d['lat'], $d['lon'], $d['keterangan']
+            $d['batas_utara'], $d['batas_timur'], $d['batas_selatan'], $d['batas_barat'], $d['lat'], $d['lon'], $d['keterangan'], $d['poligon']
         ]);
-        flash_set('ok', 'Data buku C berhasil disimpan.');
+        if ($v['warn']) { flash_set('error', $v['warn'] . ' Data tetap disimpan.'); }
+        else { flash_set('ok', 'Data buku C berhasil disimpan (validasi: aman).'); }
         redirect('/tanah');
     }
 
@@ -84,14 +132,24 @@ class TanahController
     {
         csrf_check();
         $d = $this->data(Database::conn());
+        if ($d['nama'] === '') {
+            flash_set('error', 'Nama pemilik wajib diisi.');
+            redirect('/tanah/edit/' . $id);
+        }
+        $v = $this->validateSpatial($d, $id);
+        if ($v['block']) {
+            flash_set('error', $v['block']);
+            redirect('/tanah/edit/' . $id);
+        }
         $st = Database::conn()->prepare(
-            "UPDATE tanah SET nomor_c=?, persil=?, nama=?, alamat=?, blok_dusun=?, jenis=?, luas=?, batas_utara=?, batas_timur=?, batas_selatan=?, batas_barat=?, lat=?, lon=?, keterangan=?, updated_at=datetime('now','localtime') WHERE id=?"
+            "UPDATE tanah SET nomor_c=?, persil=?, nama=?, alamat=?, blok_dusun=?, jenis=?, luas=?, batas_utara=?, batas_timur=?, batas_selatan=?, batas_barat=?, lat=?, lon=?, keterangan=?, poligon=?, updated_at=datetime('now','localtime') WHERE id=?"
         );
         $st->execute([
             $d['nomor_c'], $d['persil'], $d['nama'], $d['alamat'], $d['blok_dusun'], $d['jenis'], $d['luas'],
-            $d['batas_utara'], $d['batas_timur'], $d['batas_selatan'], $d['batas_barat'], $d['lat'], $d['lon'], $d['keterangan'], $id
+            $d['batas_utara'], $d['batas_timur'], $d['batas_selatan'], $d['batas_barat'], $d['lat'], $d['lon'], $d['keterangan'], $d['poligon'], $id
         ]);
-        flash_set('ok', 'Data berhasil diperbarui.');
+        if ($v['warn']) { flash_set('error', $v['warn'] . ' Data tetap disimpan.'); }
+        else { flash_set('ok', 'Data berhasil diperbarui (validasi: aman).'); }
         redirect('/tanah');
     }
 

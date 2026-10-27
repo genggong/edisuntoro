@@ -6,8 +6,8 @@ Database::migrate();
 $pdo = Database::conn();
 
 $rows = [
-    ['nomor_c'=>'C-001','persil'=>'PS-12','nama'=>'Warsinem','alamat'=>'Dusun Karanganyar','blok_dusun'=>'Karanganyar','jenis'=>'sawah','luas'=>1200,'batas_utara'=>'jalan poros','batas_timur'=>'sungai kecil','batas_selatan'=>'kebun','batas_barat'=>'rumah','lat'=>-6.9065,'lon'=>109.0240],
-    ['nomor_c'=>'C-002','persil'=>'PS-13','nama'=>'Sutarno','alamat'=>'Dusun Karanganyar','blok_dusun'=>'Karanganyar','jenis'=>'sawah','luas'=>850,'batas_utara'=>'Warsinem','batas_timur'=>'parit','batas_selatan'=>'jalan setapak','batas_barat'=>'Sutini','lat'=>-6.9059,'lon'=>109.0250],
+    ['nomor_c'=>'C-001','persil'=>'PS-12','nama'=>'Warsinem','alamat'=>'Dusun Karanganyar','blok_dusun'=>'Karanganyar','jenis'=>'sawah','luas'=>1200,'batas_utara'=>'jalan poros','batas_timur'=>'sungai kecil','batas_selatan'=>'kebun','batas_barat'=>'rumah','lat'=>-6.9065,'lon'=>109.0240,'poligon'=>'-6.9060,109.0236; -6.9070,109.0236; -6.9070,109.0244; -6.9060,109.0244'],
+    ['nomor_c'=>'C-002','persil'=>'PS-13','nama'=>'Sutarno','alamat'=>'Dusun Karanganyar','blok_dusun'=>'Karanganyar','jenis'=>'sawah','luas'=>850,'batas_utara'=>'Warsinem','batas_timur'=>'parit','batas_selatan'=>'jalan setapak','batas_barat'=>'Sutini','lat'=>-6.9059,'lon'=>109.0250,'poligon'=>'-6.9054,109.0246; -6.9064,109.0246; -6.9064,109.0254; -6.9054,109.0254'],
     ['nomor_c'=>'C-003','persil'=>'PS-21','nama'=>'Karni','alamat'=>'Dusun Krajan','blok_dusun'=>'Krajan','jenis'=>'tegal','luas'=>400,'batas_utara'=>'jalan desa','batas_timur'=>'sawah','batas_selatan'=>'kebun','batas_barat'=>'jl. raya','lat'=>-6.9030,'lon'=>109.0210],
     ['nomor_c'=>'C-004','persil'=>'PS-22','nama'=>'Jumadi','alamat'=>'Dusun Krajan','blok_dusun'=>'Krajan','jenis'=>'pekarangan','luas'=>225,'batas_utara'=>'rumah','batas_timur'=>'jalan','batas_selatan'=>'kebun','batas_barat'=>'masjid','lat'=>-6.9040,'lon'=>109.0220],
     ['nomor_c'=>'C-005','persil'=>'PS-30','nama'=>'Mulyani','alamat'=>'Dusun Cibuluh','blok_dusun'=>'Cibuluh','jenis'=>'sawah','luas'=>1600,'batas_utara'=>'Slamet','batas_timur'=>'sungai Cibuluh','batas_selatan'=>'tegal','batas_barat'=>'Karno','lat'=>-6.9080,'lon'=>109.0280],
@@ -22,13 +22,13 @@ $rows = [
 
 // idempotent: hapus baris contoh saja (nomor_c C-xxx), biarkan data manual pengguna
 $pdo->exec("DELETE FROM tanah WHERE nomor_c LIKE 'C-%'");
-$cols = "nomor_c, persil, nama, alamat, blok_dusun, jenis, luas, batas_utara, batas_timur, batas_selatan, batas_barat, lat, lon";
-$ph = implode(',', array_fill(0, 13, '?'));
+$cols = "nomor_c, persil, nama, alamat, blok_dusun, jenis, luas, batas_utara, batas_timur, batas_selatan, batas_barat, lat, lon, poligon";
+$ph = implode(',', array_fill(0, 14, '?'));
 $ins = $pdo->prepare("INSERT INTO tanah ($cols) VALUES ($ph)");
 foreach ($rows as $r) {
     $ins->execute([
         $r['nomor_c'], $r['persil'], $r['nama'], $r['alamat'], $r['blok_dusun'], $r['jenis'], $r['luas'],
-        $r['batas_utara'], $r['batas_timur'], $r['batas_selatan'], $r['batas_barat'], $r['lat'], $r['lon'],
+        $r['batas_utara'], $r['batas_timur'], $r['batas_selatan'], $r['batas_barat'], $r['lat'], $r['lon'], $r['poligon'] ?? null,
     ]);
 }
 echo "Seeder ulang selesai.\n";

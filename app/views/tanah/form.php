@@ -5,6 +5,7 @@ $r = $row ?: [
     'jenis' => 'sawah', 'luas' => 0, 'batas_utara' => '', 'batas_timur' => '', 'batas_selatan' => '',
     'batas_barat' => '', 'lat' => (isset($_GET['lat']) && $_GET['lat'] !== '') ? (float)$_GET['lat'] : null,
     'lon' => (isset($_GET['lon']) && $_GET['lon'] !== '') ? (float)$_GET['lon'] : null,
+    'poligon' => (isset($_GET['poligon']) && $_GET['poligon'] !== '') ? $_GET['poligon'] : '',
     'keterangan' => '', 'id' => null,
 ];
 $action = $r['id'] ? BASE_URL . '/tanah/update/' . $r['id'] : BASE_URL . '/tanah/tambah';
@@ -47,6 +48,13 @@ $action = $r['id'] ? BASE_URL . '/tanah/update/' . $r['id'] : BASE_URL . '/tanah
         <div class="col-md-6"><label class="form-label">Longitude</label><input name="lon" type="number" step="any" value="<?= $r['lon'] !== null ? e($r['lon']) : '' ?>" class="form-control" placeholder="109.02330"></div>
       </div>
       <p class="text-muted small mt-2">Koordinat pusat desa Sidamulya: -6.90535, 109.02330. Titik tanah bisa ditambahkan sekitarnya.</p>
+
+      <div class="mb-3">
+        <label class="form-label">Poligon batas lahan (opsional, utk validasi spasial)</label>
+        <textarea name="poligon" rows="3" class="form-control font-monospace" placeholder="-6.9065,109.0240; -6.9061,109.0242; -6.9060,109.0239"><?= e($r['poligon']) ?></textarea>
+        <p class="text-muted small mt-1 mb-0">Format: <b>lat,lon;</b> per titik. Gambar polygon di menu <b>Peta</b> → "Use titik awal ke form", atau isi manual. Saat simpan, sistem cek <b>overlap</b> & <b>selisih luas</b>.</p>
+      </div>
+
       <div class="mb-3"><label class="form-label">Keterangan</label><textarea name="keterangan" rows="2" class="form-control"><?= e($r['keterangan']) ?></textarea></div>
 
       <div class="d-flex gap-2">
